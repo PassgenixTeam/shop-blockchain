@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "author": "Passgenix Team",
+  "name": "shop",
+  "main": "hardhat.config.ts",
+  "scripts": {
+    "test": "npx hardhat test",
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run scripts/deployAndVerify.ts",
+    "upgrade": "npx hardhat run scripts/upgradeAndVerify.ts",
+    "verify": "npx hardhat run scripts/verify.ts",
+    "coverage": "npx hardhat coverage",
+    "solhint": "solhint contracts/**/*.sol --formatter table",
+    "clean": "npx hardhat clean",
+    "compile": "npx hardhat compile",
+    "test-integration": "npx hardhat test test/integration/*.test.ts"
+  },
+  "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
+  "directories": {
+    "test": "test"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "cli-table3": "^0.6.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.8.1",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "dotenv": "^16.0.3"
+  }
+}
