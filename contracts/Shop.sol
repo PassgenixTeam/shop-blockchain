@@ -8,6 +8,8 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
+import "hardhat/console.sol";
+
 contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
@@ -53,10 +55,17 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     // -----------External Functions-----------
 
+    /**
+     * @notice Add or remove permitted token.
+     * @param _token Token address.
+     * @param _isPermitted Is permitted.
+     */
     function setPermittedToken(
         address _token,
         bool _isPermitted
     ) external onlyOwner {
+        require(_token != address(0), "Invalid payment token");
+
         permittedTokens[_token] = _isPermitted;
         emit SetPermittedToken(_token, _isPermitted);
     }
@@ -76,12 +85,12 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _price,
         string memory _data
     ) external {
+        require(permittedTokens[_paymentToken], "Invalid payment token");
+        require(_price > 0, "Invalid price");
         require(
             orders[_txMessage].customer == address(0),
             "Duplicated transaction message"
         );
-        require(permittedTokens[_paymentToken], "Invalid payment token");
-        require(_price > 0, "Invalid price");
 
         bytes32 generatedTxMessage = generateTxMessage(
             _msgSender(),
@@ -136,7 +145,7 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address _paymentToken,
         uint256 _price,
         string memory _data
-    ) public view onlyOwner returns (bytes32) {
+    ) public pure returns (bytes32) {
         return
             keccak256(
                 abi.encodePacked(_customer, _paymentToken, _price, _data)

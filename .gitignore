@@ -9,3 +9,8 @@ typechain-types
 cache
 artifacts
 
+# Generated test files
+xunit.xml
+
+# Openzeppelin
+.openzeppelin/unknown-*.json
