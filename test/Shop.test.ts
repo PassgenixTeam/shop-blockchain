@@ -60,7 +60,7 @@ describe("Material Flow Test", function () {
 
   describe("Make order", () => {
     let customer: SignerWithAddress;
-    const price = 200;
+    const price = BN(200);
     const data = JSON.stringify({
       name: "Cigar1",
       amount: 2,
@@ -107,12 +107,51 @@ describe("Material Flow Test", function () {
     });
 
     it("[OK]", async () => {
-      await USDC.connect(users[0]).increaseAllowance(Shop.address, ethers.constants.MaxUint256);
+      await USDC.connect(users[0]).approve(Shop.address, ethers.constants.MaxUint256);
+      await expect(Shop.connect(customer).makeOrder(txMessage, signature, USDC.address, price, data)).to.changeTokenBalances(
+        USDC,
+        [Shop.address, customer.address],
+        [price, price.mul(-1)]
+      );
 
-      const txMessage = await Shop.generateTxMessage(customer.address, USDC.address, price, data);
-      const signature = signer.signMessage(ethers.utils.arrayify(txMessage));
+      const order = await Shop.orders(txMessage);
+      expect(order.customer).to.equal(customer.address);
+      expect(order.paymentToken).to.equal(USDC.address);
+      expect(order.price).to.equal(price);
+      expect(order.signature).to.equal(signature);
+      expect(order.data).to.equal(data);
 
-      await Shop.connect(customer).makeOrder(txMessage, signature, USDC.address, price, data);
+      expect(await Shop.pendingWithdraw(USDC.address)).to.equal(price);
+    });
+
+    it("[Fail]: Duplicated transaction message", async () => {
+      await expect(Shop.connect(customer).makeOrder(txMessage, signature, USDC.address, price, data)).to.revertedWith("Duplicated transaction message");
+    });
+  });
+
+  describe("Withdraw", () => {
+    it("[Fail]: Invalid recipient", async () => {
+      await expect(Shop.connect(owner).withdraw(ethers.constants.AddressZero, USDC.address)).revertedWith("Invalid recipient");
+    });
+
+    it("[Fail]: Caller is not owner", async () => {
+      await expect(Shop.connect(users[0]).withdraw(users[0].address, USDC.address)).revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("[Fail]: Nothing to withdraw", async () => {
+      const USDCFake: USDC = await USDC__factory.deploy([owner.address], 1000000);
+      await expect(Shop.connect(owner).withdraw(owner.address, USDCFake.address)).revertedWith("Nothing to withdraw");
+    });
+
+    it("[OK]", async () => {
+      const pendingWithdrawUSDC = await Shop.pendingWithdraw(USDC.address);
+      await expect(Shop.connect(owner).withdraw(owner.address, USDC.address)).to.changeTokenBalances(
+        USDC,
+        [owner.address, Shop.address],
+        [pendingWithdrawUSDC, pendingWithdrawUSDC.mul(-1)]
+      );
+
+      expect(await Shop.pendingWithdraw(USDC.address)).to.equal(0);
     });
   });
 });

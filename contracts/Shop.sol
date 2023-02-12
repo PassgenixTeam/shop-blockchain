@@ -24,9 +24,17 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         string data;
     }
 
+    // Signer to sign transaction hash message
     address public signer;
+
+    // Transaction hash message => Order
     mapping(bytes32 => Order) public orders;
+
+    // Payment token => Is permitted
     mapping(address => bool) public permittedTokens;
+
+    // Payment token => Pending withdraw amount
+    mapping(address => uint256) public pendingWithdraw;
 
     // -----------Events-----------
 
@@ -38,6 +46,7 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         bytes signature,
         string data
     );
+    event Withdrawn(address recipient, address paymentToken, uint256 amount);
 
     // -----------Initializer-----------
 
@@ -109,12 +118,18 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             "Invalid signature"
         );
 
+        // Create new Order
         Order storage order = orders[_txMessage];
         order.customer = _msgSender();
         order.paymentToken = _paymentToken;
         order.price = _price;
         order.signature = _signature;
         order.data = _data;
+
+        // Add token to pending withdraw
+        pendingWithdraw[_paymentToken] =
+            pendingWithdraw[_paymentToken] +
+            _price;
 
         IERC20Upgradeable(_paymentToken).safeTransferFrom(
             _msgSender(),
@@ -129,6 +144,26 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             order.signature,
             order.data
         );
+    }
+
+    /**
+     * @notice Add or remove permitted token.
+     * @param _repicient Recipient address.
+     * @param _paymentToken Payment token address.
+     */
+    function withdraw(
+        address _repicient,
+        address _paymentToken
+    ) external onlyOwner {
+        require(_repicient != address(0), "Invalid recipient");
+
+        uint256 amount = pendingWithdraw[_paymentToken];
+        require(amount > 0, "Nothing to withdraw");
+
+        pendingWithdraw[_paymentToken] = 0;
+        IERC20Upgradeable(_paymentToken).transfer(_repicient, amount);
+
+        emit Withdrawn(_repicient, _paymentToken, amount);
     }
 
     // -----------View Functions-----------

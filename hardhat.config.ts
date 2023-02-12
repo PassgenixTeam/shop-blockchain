@@ -18,17 +18,17 @@ const config: HardhatUserConfig = {
     },
     local: {
       url: process.env.LOCAL_RPC,
-      accounts: [process.env.LOCAL_DEPLOYER!, process.env.LOCAL_OWNER!],
+      accounts: [process.env.LOCAL_DEPLOYER!, process.env.LOCAL_OWNER!, process.env.LOCAL_SIGNER!],
     },
-    polygon_test: {
-      url: process.env.POLYGON_TEST_RPC,
-      accounts: [process.env.POLYGON_TEST_DEPLOYER!, process.env.POLYGON_TEST_OWNER!],
-      chainId: 80001,
+    bscTestnet: {
+      url: process.env.BSC_TEST_RPC,
+      accounts: [process.env.BSC_TEST_DEPLOYER!, process.env.BSC_TEST_OWNER!, process.env.BSC_TEST_SIGNER!],
+      chainId: 97,
     },
   },
   etherscan: {
     apiKey: {
-      polygonMumbai: process.env.POLYGON_TEST_API_KEY!,
+      bscTestnet: process.env.BSC_SCAN_API_KEY!,
     },
   },
   solidity: {
