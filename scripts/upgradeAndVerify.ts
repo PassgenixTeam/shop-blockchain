@@ -4,7 +4,7 @@ import { ethers, upgrades } from "hardhat";
 import { Table } from "./utils";
 import { Shop, Shop__factory } from "../typechain-types";
 
-import * as contractAddress from "../deployed/local_2023-02-12T04:41:40.995Z.json";
+import * as contractAddress from "../deployed/bscTestnet_2023-02-12T04:48:32.460Z.json";
 
 const table = new Table();
 
