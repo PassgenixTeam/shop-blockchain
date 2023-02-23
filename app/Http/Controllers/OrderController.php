@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\order;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Http\Controllers\CoinController;
 
 class OrderController extends Controller
 {
     public function admin()
     {
         //
-        $orders = order::all();
+        $orders = Order::all();
         return view('admin/order', ['orders' => $orders]);
     }
 
@@ -23,7 +24,7 @@ class OrderController extends Controller
     public function index()
     {
         //
-        $orders = order::all();
+        $orders = Order::all();
         return view('admin/order', ['orders' => $orders]);
     }
     /**
@@ -46,27 +47,36 @@ class OrderController extends Controller
     {
         //
         $product = Product::find($id);
-        print($product);
+
         if(!$product) {
             return redirect('admin/order');
         }
 
-        $order = new order();
+        $coin = (new CoinController)->getCoinPrice($request->coin);
+
+        $total_price = $product->price / $coin->price * $request->amount;
+
+        $order = new Order();
         $order->product_id = $product->id;
         $order->amount = $request->amount;
         $order->order_status = "pending";
+        $order->total_price = $total_price;
+        $order->tx_message = $request->tx_message;
         $order->save();
 
-        return redirect('admin/order');
+        return [
+            'id' => $order->id,
+            'total_price' => $total_price,
+            'symbol' => $coin->symbol];
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\order  $order
+     * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function show(order $order)
+    public function show(Order $order)
     {
         //
     }
@@ -74,10 +84,10 @@ class OrderController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\order  $order
+     * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function edit(order $order)
+    public function edit(Order $order)
     {
         //
     }
@@ -89,9 +99,16 @@ class OrderController extends Controller
      * @param  \App\Models\order  $order
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, order $order)
+    public function update(Request $request, $id)
     {
         //
+        $order = Order::find($id);
+        if(!empty($request->tx_message)) $order->tx_message = $request->tx_message;
+        if(!empty($request->order_status)) $order->order_status = $request->order_status;
+
+        $order->save();
+
+        return $order;
     }
 
     /**

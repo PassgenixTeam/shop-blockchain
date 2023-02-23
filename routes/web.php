@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MyEthereumController;
+use App\Http\Controllers\CoinController;
 
 use Illuminate\Support\Facades\Input;
-use GuzzleHttp\Client;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,24 +33,12 @@ Route::post('/product', [ProductController::class, 'store']);
 Route::get('/product/{id}', [ProductController::class, 'getById']);
 
 Route::post('/order/product/{id}', [OrderController::class, 'store']);
+Route::put('/order/product/{id}', [OrderController::class, 'update']);
 
 // ethereum
 Route::get('/ethereum', [MyEthereumController::class, 'index']);
 
-Route::get('/coin', function () {
-    $symbol = request('symbol');
-    $client = new Client();
-    $url = 'https://api.binance.com/api/v3/ticker/price?symbols=' . $symbol;
-    // $response = $client->get($url);
-    $response = $client->request('GET', $url, [
-        'headers' => [
-            'X-MBX-APIKEY' => '0VBHGpJZzXVH7DT9T4VACj4JaR0Ujxu7Q3epGEq8yGWv7gj8vh3af4s3tRrVfo7a'
-        ]
-    ]);
-
-    $data = json_decode($response->getBody(), true);
-    return $data;
-});
+Route::get('/coin', [CoinController::class, 'getCoin']);
 
 Route::get('/abi-shop', function () {
     $typeAbi = request('type');

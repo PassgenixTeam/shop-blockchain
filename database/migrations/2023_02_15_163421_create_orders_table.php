@@ -17,8 +17,9 @@ class CreateOrdersTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
             $table->string('order_status');
+            $table->string("tx_message")->nullable();;
+            $table->integer('amount');
             $table->timestamps();
-
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }

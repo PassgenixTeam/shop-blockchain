@@ -43,10 +43,7 @@
                             <p class="card-text" id="price">
                                 $ {{$product->price}}
                             </p>
-                            <form
-                                action="/order/product/{{$product->id}}"
-                                method="post"
-                            >
+                            <form id="order-form">
                                 @csrf
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Amount</span>
@@ -56,7 +53,6 @@
                                         name="amount"
                                         id="amount"
                                         class="form-control"
-                                        aria-label="Dollar amount (with dot and two decimal places)"
                                     />
                                 </div>
                                 <br />
@@ -64,6 +60,7 @@
                                     <select
                                         class="form-select"
                                         aria-label="Default select example"
+                                        name="coin"
                                         style="max-width: 100px"
                                     >
                                         <option selected>Coin</option>
@@ -74,8 +71,6 @@
                                         disabled="disabled"
                                         class="form-control"
                                         id="coin-to-usd"
-                                        aria-label="Sizing example input"
-                                        aria-describedby="eth"
                                         style="background-color: white"
                                     />
                                     <!-- <span class="input-group-text">$</span> -->
@@ -92,8 +87,17 @@
     </body>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <script>
+        const symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+        // set option value coin
+        const select = document.querySelector(".form-select");
+        symbols.forEach((symbol) => {
+            const opt = document.createElement("option");
+            opt.value = symbol;
+            opt.innerHTML = symbol.split("USDT")[0];
+            select.appendChild(opt);
+        });
+
         function getTokenPrice(price, amount, token) {
-            const symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
             const apiUrl = `http://127.0.0.1:8000/coin?symbol=${JSON.stringify(
                 symbols
             )}`;
@@ -102,13 +106,7 @@
                 .then((response) => {
                     // console.log(response.data);
                     const data = response.data;
-                    const select = document.querySelector(".form-select");
-                    data.forEach((element) => {
-                        const opt = document.createElement("option");
-                        opt.value = element.price;
-                        opt.innerHTML = element.symbol.split("USDT")[0];
-                        select.appendChild(opt);
-                    });
+                    window.coins = data;
                 })
                 .catch((error) => {
                     console.error(error);
@@ -117,14 +115,14 @@
         getTokenPrice();
 
         //
-        const price = Number(
+        const priceInput = Number(
             document.getElementById("price").innerHTML.match(/\d+/)[0]
         );
         const amount = document.getElementById("amount");
         const formSelect = document.querySelector(".form-select");
         const inputCoin = document.getElementById("coin-to-usd");
 
-        amount.addEventListener("change", function () {
+        amount.addEventListener("keypress", function () {
             calculateCoinValue();
         });
 
@@ -133,10 +131,12 @@
         });
 
         function calculateCoinValue() {
-            const coin = document.querySelector(".form-select");
-            const coinPrice = coin.value;
+            const selectedCoin = document.querySelector(".form-select");
+            const coinPrice = window.coins.find(
+                (coin) => coin.symbol === selectedCoin.value
+            ).price;
             const currencyExchange =
-                (Number(price) * Number(amount.value)) / Number(coinPrice);
+                (Number(priceInput) * Number(amount.value)) / Number(coinPrice);
             inputCoin.value = currencyExchange;
         }
     </script>
@@ -289,7 +289,7 @@
             ]);
 
             const ShopContract = new window.ethers.Contract(
-                "0x37F40F714c7a07a05032c733311602fA03de8458",
+                "0xD6d437d485DA2B2684E413CE2F416d8021Fa906F",
                 shopAbi
             );
             window.ShopContract = ShopContract;
@@ -298,7 +298,7 @@
             window.ShopContractWithSigner = ShopContractWithSigner;
 
             const USDCContract = new window.ethers.Contract(
-                "0x9039D761C753cCB01f1aCD531b76317DfdC59b93",
+                "0xCe95B81F8A995891B4CF84D1dc511aFEb6300E70",
                 tokenERC20Abi
             );
             window.USDCContract = USDCContract;
@@ -389,23 +389,60 @@
             return order.wait();
         }
 
+        async function postOrderProduct(productData) {
+            try {
+                const res = await axios.post(
+                    "/order/product/{{ $product->id }}",
+                    productData
+                );
+
+                return res.data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function updateOrderProduct(id, productData) {
+            try {
+                const res = await axios.put(
+                    `/order/product/${id}`,
+                    productData
+                );
+
+                return res.data;
+            } catch (error) {
+                throw error;
+            }
+        }
+    </script>
+
+    <script>
         async function main() {
             // Prepare contracts
             await connectWallet();
             await initiateTrustWallet();
             await createContractInstances();
+        }
 
+        async function buyProduct(productData) {
             // Make order with USDC
-            const price = ethers.utils.parseEther("0.00001"); // Replace with price of cigar
+            const newOrder = await postOrderProduct(productData);
+
+            const price = window.ethers.utils.parseEther(
+                newOrder.total_price.toString()
+            );
             const data = JSON.stringify({
-                name: "Cigar1",
-                amount: 2, // Replace with amount of cigars
-                date: 123123,
+                name: "{{ $product->name }}",
+                amount: productData.amount, // Replace with amount of cigars
+                date: new Date().toISOString(),
             });
 
             await checkAllowance(price);
             const orderTxMessage = await createOrderTxMessage(data, price);
-            // TODO: create API POST create order
+
+            const updatedOrder = await updateOrderProduct(newOrder.id, {
+                tx_message: orderTxMessage,
+            });
 
             // BE sign transaction
             const signedOrderTxMessage = await signOrderTxMessage(
@@ -419,10 +456,24 @@
                 price,
                 data
             );
-            // TODO: create API PUT update order
+            // // TODO: create API PUT update order
 
-            console.log(order);
+            await updateOrderProduct(newOrder.id, {
+                order_status: "paid",
+            });
+
+            console.log("done");
         }
+
+        const orderForm = document.getElementById("order-form");
+        orderForm.onsubmit = async (e) => {
+            e.preventDefault();
+            // await buyProduct();
+            const formData = new FormData(e.target);
+            const formProps = Object.fromEntries(formData);
+
+            buyProduct(formProps);
+        };
 
         window.onload = function () {
             main();
