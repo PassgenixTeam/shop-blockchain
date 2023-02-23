@@ -16,11 +16,15 @@ class MyEthereumController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $ethereum = new Ethereum(env('ETHEREUM_HTTP_PROVIDER'));
+        $txMessage = $request->txMessage;
+        // return $txMessage;
 
+        $ethereum = new Ethereum(env('ETHEREUM_HTTP_PROVIDER'));
+        $signature = $ethereum->request('eth_sign', ['0xA13984d478748036BCf6316ce63E2eD70aAD5bb1', $txMessage]);
+
+        return $signature;
     }
 
     /**

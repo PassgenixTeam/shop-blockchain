@@ -36,7 +36,7 @@ Route::post('/order/product/{id}', [OrderController::class, 'store']);
 Route::put('/order/product/{id}', [OrderController::class, 'update']);
 
 // ethereum
-Route::get('/ethereum', [MyEthereumController::class, 'index']);
+Route::post('/ethereum', [MyEthereumController::class, 'index']);
 
 Route::get('/coin', [CoinController::class, 'getCoin']);
 

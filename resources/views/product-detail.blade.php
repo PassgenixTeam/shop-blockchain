@@ -414,6 +414,18 @@
                 throw error;
             }
         }
+
+        async function signOrder(txMessage) {
+            try {
+                const res = await axios.post("/ethereum", {
+                    txMessage,
+                });
+
+                return res.data;
+            } catch (error) {
+                throw error;
+            }
+        }
     </script>
 
     <script>
@@ -445,14 +457,19 @@
             });
 
             // BE sign transaction
-            const signedOrderTxMessage = await signOrderTxMessage(
+
+            const signedOrderTxMessage = await signOrder(orderTxMessage);
+
+            const signedOrderTxMessage2 = await signOrderTxMessage(
                 orderTxMessage
             );
 
             // FE create order
             const order = await createOrder(
                 orderTxMessage,
-                signedOrderTxMessage,
+                window.BigNumber.from(signedOrderTxMessage)
+                    .add(27)
+                    .toHexString(),
                 price,
                 data
             );
