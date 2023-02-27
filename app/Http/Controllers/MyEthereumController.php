@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\myEthereum;
 use Illuminate\Http\Request;
 
-use Ethereum\Ethereum;
+use kornrunner\Keccak;
+use kornrunner\Secp256k1;
+use kornrunner\Serializer\HexSignatureSerializer;
 
-
+// require_once "vendor/autoload.php";
 
 class MyEthereumController extends Controller
 {
@@ -18,13 +20,8 @@ class MyEthereumController extends Controller
      */
     public function index(Request $request)
     {
-        $txMessage = $request->txMessage;
-        // return $txMessage;
-
-        $ethereum = new Ethereum(env('ETHEREUM_HTTP_PROVIDER'));
-        $signature = $ethereum->request('eth_sign', ['0xA13984d478748036BCf6316ce63E2eD70aAD5bb1', $txMessage]);
-
-        return $signature;
+        exec("node ../signMessage.cli.js ".$request->txMessage, $output, $return);
+        return $output[0];
     }
 
     /**

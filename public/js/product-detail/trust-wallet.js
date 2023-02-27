@@ -63,8 +63,12 @@ function getTrustWalletFromWindow() {
 }
 
 export async function initiateTrustWallet() {
-    const ethersProvider = new window.ethers.providers.JsonRpcProvider();
+    // const injectedProvider = await getTrustWalletInjectedProvider();
+    const ethersProvider = new window.ethers.providers.Web3Provider(
+        window.ethereum
+    );
     window.provider = ethersProvider;
+    await window.provider.send("eth_requestAccounts", []);
 
     const signer = ethersProvider.getSigner();
     window.signer = signer;

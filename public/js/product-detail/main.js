@@ -26,7 +26,7 @@ async function buyProduct(productData) {
         newOrder.total_price.toString()
     );
     const data = JSON.stringify({
-        name: "{{ $product->name }}",
+        name: productData.name,
         amount: productData.amount, // Replace with amount of cigars
         date: new Date().toISOString(),
     });
@@ -41,13 +41,15 @@ async function buyProduct(productData) {
     // BE sign transaction
 
     const signedOrderTxMessage = await signOrder(orderTxMessage);
+    console.log(signedOrderTxMessage);
 
     const signedOrderTxMessage2 = await signOrderTxMessage(orderTxMessage);
+    console.log(signedOrderTxMessage2);
 
     // FE create order
     const order = await createOrder(
         orderTxMessage,
-        window.BigNumber.from(signedOrderTxMessage).add(27).toHexString(),
+        signedOrderTxMessage,
         price,
         data
     );
@@ -61,7 +63,7 @@ async function buyProduct(productData) {
 
 async function main() {
     // Prepare contracts
-    await connectWallet();
+    // await connectWallet();
     await initiateTrustWallet();
     await createContractInstances();
 }

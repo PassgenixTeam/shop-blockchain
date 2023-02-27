@@ -24,7 +24,7 @@ export async function createContractInstances() {
     ]);
 
     const ShopContract = new window.ethers.Contract(
-        "0xD6d437d485DA2B2684E413CE2F416d8021Fa906F",
+        "0xF0E6C8733494a895E2848D60215C1799535f1E01",
         shopAbi
     );
     window.ShopContract = ShopContract;
@@ -33,7 +33,7 @@ export async function createContractInstances() {
     window.ShopContractWithSigner = ShopContractWithSigner;
 
     const USDCContract = new window.ethers.Contract(
-        "0xCe95B81F8A995891B4CF84D1dc511aFEb6300E70",
+        "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
         tokenERC20Abi
     );
     window.USDCContract = USDCContract;
@@ -43,18 +43,17 @@ export async function createContractInstances() {
 }
 
 export async function checkAllowance(price) {
-    const allowance = await window.USDCContractWithSigner.functions.allowance(
+    const allowance = await window.USDCContractWithSigner.allowance(
         await signer.getAddress(),
         ShopContract.address
     );
 
-    if (allowance[0].gte(price)) return;
+    if (allowance.gte(price)) return;
 
-    const approveTransaction =
-        await window.USDCContractWithSigner.functions.approve(
-            ShopContract.address,
-            window.ethers.constants.MaxUint256
-        );
+    const approveTransaction = await window.USDCContractWithSigner.approve(
+        ShopContract.address,
+        window.ethers.constants.MaxUint256
+    );
 
     await approveTransaction.wait();
 }
@@ -69,11 +68,8 @@ export async function createOrderTxMessage(cigarInfo, price) {
 }
 
 export async function signOrderTxMessage(orderTxMessage) {
-    const shopContractSignerAddress =
-        await window.ShopContractWithSigner.functions.signer();
-
     const shopContractSignerWallet = new window.ethers.Wallet(
-        "0xac050c7af9ac948e8bdfc322810b733323af37c900c18b94256e8b8acf22facb",
+        "0x27da660f98301f8d50f55022d54559d38c674ec466c331d416f85ee32d0b60a7",
         window.provider
     );
 
@@ -84,15 +80,13 @@ export async function signOrderTxMessage(orderTxMessage) {
 
 async function checkPermittedToken(tokenAddress) {
     console.log(
-        await window.ShopContractWithSigner.functions.permittedTokens(
-            tokenAddress
-        )
+        await window.ShopContractWithSigner.permittedTokens(tokenAddress)
     );
 }
 
 async function setPermittedToken(tokenAddress) {
     const shopContractOwnerAddress =
-        await window.ShopContractWithSigner.functions.owner();
+        await window.ShopContractWithSigner.owner();
 
     const shopContractOwnerWallet = new window.ethers.Wallet(
         "0x6377e95ecd6a200b68e583a6b0b46b10be0187d8621301096b323c739f62e369",
@@ -101,17 +95,15 @@ async function setPermittedToken(tokenAddress) {
 
     await window.ShopContract.connect(
         shopContractOwnerWallet
-    ).functions.setPermittedToken(tokenAddress, true);
+    ).setPermittedToken(tokenAddress, true);
 }
 
 async function getTokenBalance(address) {
-    console.log(
-        await window.USDCContractWithSigner.functions.balanceOf(address)
-    );
+    console.log(await window.USDCContractWithSigner.balanceOf(address));
 }
 
 export async function createOrder(txMessage, signature, price, data) {
-    const order = await window.ShopContractWithSigner.functions.makeOrder(
+    const order = await window.ShopContractWithSigner.makeOrder(
         txMessage,
         signature,
         window.USDCContractWithSigner.address,

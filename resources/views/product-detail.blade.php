@@ -50,6 +50,11 @@
                                     name="id"
                                     value="{{ $product->id }}"
                                 />
+                                <input
+                                    type="hidden"
+                                    name="name"
+                                    value="{{ $product->name }}"
+                                />
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Amount</span>
                                     <input
