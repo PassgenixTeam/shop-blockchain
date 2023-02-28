@@ -93,8 +93,25 @@
                     </div>
                 </div>
             </div>
+
+            <h5 class="mt-5">My Balance:</h5>
+            <p id="userBalance"></p>
+
+            <h5 class="mt-5">Is Owner: <strong id="isOwner"></strong></h5>
+            <button
+                type="button"
+                id="withdraw"
+                class="btn btn-primary disabled"
+            >
+                Withdraw
+            </button>
+            <p id="ownerBalance"></p>
+
+            <h5 class="mt-5">Contract Balance:</h5>
+            <p id="contractBalance"></p>
         </div>
     </body>
+
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <!--  -->
     <script

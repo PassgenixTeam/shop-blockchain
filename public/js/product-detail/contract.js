@@ -32,14 +32,27 @@ export async function createContractInstances() {
     const ShopContractWithSigner = ShopContract.connect(window.signer);
     window.ShopContractWithSigner = ShopContractWithSigner;
 
+    if (window.coinAddress) {
+        const USDCContract = new window.ethers.Contract(
+            window.coinAddress,
+            tokenERC20Abi
+        );
+        window.USDCContract = USDCContract;
+
+        const USDCContractWithSigner = USDCContract.connect(signer);
+        window.USDCContractWithSigner = USDCContractWithSigner;
+    }
+}
+
+export async function getBalance(tokenAddress, address) {
+    const tokenERC20Abi = await getAbi("token");
     const USDCContract = new window.ethers.Contract(
-        "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
+        tokenAddress,
         tokenERC20Abi
     );
-    window.USDCContract = USDCContract;
 
-    const USDCContractWithSigner = USDCContract.connect(signer);
-    window.USDCContractWithSigner = USDCContractWithSigner;
+    const balance = await USDCContract.connect(signer).balanceOf(address);
+    return balance;
 }
 
 export async function checkAllowance(price) {
@@ -98,8 +111,16 @@ async function setPermittedToken(tokenAddress) {
     ).setPermittedToken(tokenAddress, true);
 }
 
-async function getTokenBalance(address) {
-    console.log(await window.USDCContractWithSigner.balanceOf(address));
+export async function withdraw(tokenAddress) {
+    const transaction = window.ShopContractWithSigner.withdraw(
+        await window.signer.getAddress(),
+        tokenAddress
+    );
+    await transaction.wait();
+}
+
+export async function getOwner() {
+    return await window.ShopContractWithSigner.owner();
 }
 
 export async function createOrder(txMessage, signature, price, data) {
