@@ -112,7 +112,7 @@ async function setPermittedToken(tokenAddress) {
 }
 
 export async function withdraw(tokenAddress) {
-    const transaction = window.ShopContractWithSigner.withdraw(
+    const transaction = await window.ShopContractWithSigner.withdraw(
         await window.signer.getAddress(),
         tokenAddress
     );

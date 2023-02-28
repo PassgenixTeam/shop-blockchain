@@ -52,8 +52,8 @@ async function buyProduct(productData) {
         const signedOrderTxMessage = await signOrder(orderTxMessage);
         console.log(signedOrderTxMessage);
 
-        const signedOrderTxMessage2 = await signOrderTxMessage(orderTxMessage);
-        console.log(signedOrderTxMessage2);
+        // const signedOrderTxMessage2 = await signOrderTxMessage(orderTxMessage);
+        // console.log(signedOrderTxMessage2);
 
         // FE create order
         try {
