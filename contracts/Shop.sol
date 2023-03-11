@@ -39,6 +39,7 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     // -----------Events-----------
 
     event SetPermittedToken(address token, bool isPermitted);
+    event SetSigner(address oldSigner, address newSigner);
     event MadeOrder(
         address customer,
         address paymentToken,
@@ -77,6 +78,22 @@ contract Shop is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
         permittedTokens[_token] = _isPermitted;
         emit SetPermittedToken(_token, _isPermitted);
+    }
+
+    /**
+     * @notice Change signer.
+     * @param _signer New signer address.
+     */
+    function setSigner(address _signer) external onlyOwner {
+        require(
+            (_signer != address(0)) && !_signer.isContract(),
+            "Invalid signer address"
+        );
+
+        address oldSigner = signer;
+        signer = _signer;
+
+        emit SetSigner(oldSigner, signer);
     }
 
     /**

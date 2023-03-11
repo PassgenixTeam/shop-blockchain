@@ -58,6 +58,27 @@ describe("Material Flow Test", function () {
     });
   });
 
+  describe("Set signer", () => {
+    it("[Fail]: Caller is not owner", async () => {
+      await expect(Shop.connect(users[0]).setSigner(users[0].address)).revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("[Fail]: Invalid signer address", async () => {
+      await expect(Shop.connect(owner).setSigner(ZERO_ADDRESS)).revertedWith("Invalid signer address");
+      await expect(Shop.connect(owner).setSigner(USDC.address)).revertedWith("Invalid signer address");
+    });
+
+    it("[OK]", async () => {
+      expect((await Shop.functions.signer())[0]).to.equal(signer.address);
+
+      await Shop.connect(owner).setSigner(users[0].address);
+      expect((await Shop.functions.signer())[0]).to.equal(users[0].address);
+
+      await Shop.connect(owner).setSigner(signer.address);
+      expect((await Shop.functions.signer())[0]).to.equal(signer.address);
+    });
+  });
+
   describe("Make order", () => {
     let customer: SignerWithAddress;
     const price = BN(200);
