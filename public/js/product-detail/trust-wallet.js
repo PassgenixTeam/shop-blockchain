@@ -2,10 +2,7 @@ export async function getTrustWalletInjectedProvider(
     { timeout } = { timeout: 3000 }
 ) {
     const provider = getTrustWalletFromWindow();
-
-    if (provider) {
-        return provider;
-    }
+    if (provider) provider;
 
     return listenForTrustWalletInitialized({ timeout });
 }
@@ -14,9 +11,7 @@ async function listenForTrustWalletInitialized(
     { timeout } = { timeout: 3000 }
 ) {
     return new Promise((resolve) => {
-        const handleInitialization = () => {
-            resolve(getTrustWalletFromWindow());
-        };
+        const handleInitialization = () => resolve(getTrustWalletFromWindow());
 
         window.addEventListener(
             "trustwallet#initialized",
@@ -38,37 +33,31 @@ async function listenForTrustWalletInitialized(
 }
 
 function getTrustWalletFromWindow() {
-    const isTrustWallet = (ethereum) => {
-        const trustWallet = !!ethereum.isTrust;
-
-        return trustWallet;
-    };
-
     const injectedProviderExist =
         typeof window !== "undefined" && typeof window.ethereum !== "undefined";
 
-    if (!injectedProviderExist) {
-        return null;
-    }
+    if (!injectedProviderExist) return null;
 
-    if (isTrustWallet(window.ethereum)) {
-        return window.ethereum;
-    }
+    if (window.ethereum.isTrust) return window.ethereum;
 
-    if (window.ethereum?.providers) {
+    if (window.ethereum?.providers)
         return window.ethereum.providers.find(isTrustWallet) ?? null;
-    }
 
     return window["trustwallet"] ?? null;
 }
 
 export async function initiateTrustWallet() {
-    // const injectedProvider = await getTrustWalletInjectedProvider();
+    const injectedProvider = await getTrustWalletInjectedProvider();
     const ethersProvider = new window.ethers.providers.Web3Provider(
-        window.ethereum
+        injectedProvider || window.ethereum
     );
     window.provider = ethersProvider;
-    await window.provider.send("eth_requestAccounts", []);
+
+    if (window.ethereum.isTrust) console.log("Trust Wallet is connected");
+    else {
+        console.log("Trust Wallet is not connected, using Metamask wallet");
+        await window.provider.send("eth_requestAccounts", []);
+    }
 
     const signer = ethersProvider.getSigner();
     window.signer = signer;

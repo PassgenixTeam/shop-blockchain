@@ -97,20 +97,6 @@ async function checkPermittedToken(tokenAddress) {
     );
 }
 
-async function setPermittedToken(tokenAddress) {
-    const shopContractOwnerAddress =
-        await window.ShopContractWithSigner.owner();
-
-    const shopContractOwnerWallet = new window.ethers.Wallet(
-        "0x6377e95ecd6a200b68e583a6b0b46b10be0187d8621301096b323c739f62e369",
-        window.provider
-    );
-
-    await window.ShopContract.connect(
-        shopContractOwnerWallet
-    ).setPermittedToken(tokenAddress, true);
-}
-
 export async function withdraw(tokenAddress) {
     const transaction = await window.ShopContractWithSigner.withdraw(
         await window.signer.getAddress(),
