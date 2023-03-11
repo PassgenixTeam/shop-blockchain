@@ -8,7 +8,6 @@
     "node": "npx hardhat node",
     "deploy": "npx hardhat run scripts/deployAndVerify.ts",
     "upgrade": "npx hardhat run scripts/upgradeAndVerify.ts",
-    "verify": "npx hardhat run scripts/verify.ts",
     "coverage": "npx hardhat coverage",
     "solhint": "solhint contracts/**/*.sol --formatter table",
     "clean": "npx hardhat clean",

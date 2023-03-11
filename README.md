@@ -1,13 +1,36 @@
-# Sample Hardhat Project
+# Shop Contract
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This contract provide multisig for buying product from blockchain.
+
+This project is using Hardhat.
 
 Try running some of the following tasks:
 
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
+# Test:
+npm run test
+
+# Node:
+npm run node
+
+# Deploy (script from /scripts/deployAndVerify.ts):
+npm run deploy -- --network <network_in_hardhat_config_file>
+
+# Upgrade (script from /scripts/upgradeAndVerify.ts):
+npm run upgrade -- --network <network_in_hardhat_config_file>
+
+# coverage:
+npm run coverage
+
+# solhint:
+npm run solhint
+
+# clean:
+npm run clean
+
+# compile:
+npm run compile
+
+# test:
+npm run test
 ```
