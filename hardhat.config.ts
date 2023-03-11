@@ -25,10 +25,16 @@ const config: HardhatUserConfig = {
       accounts: [process.env.BSC_TEST_DEPLOYER!, process.env.BSC_TEST_OWNER!, process.env.BSC_TEST_SIGNER!],
       chainId: 97,
     },
+    bscMainnet: {
+      url: process.env.BSC_MAIN_RPC,
+      accounts: [process.env.BSC_MAIN_DEPLOYER!, process.env.BSC_MAIN_OWNER!, process.env.BSC_MAIN_SIGNER!],
+      chainId: 56,
+    },
   },
   etherscan: {
     apiKey: {
       bscTestnet: process.env.BSC_SCAN_API_KEY!,
+      bscMainnet: process.env.BSC_SCAN_API_KEY!,
     },
   },
   solidity: {
