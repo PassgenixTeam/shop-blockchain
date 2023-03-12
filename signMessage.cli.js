@@ -14,7 +14,7 @@ doetenv.config({
     );
 
     const signerWallet = new ethers.Wallet(
-        "0x63df86a8be65663b5e59180c749d7cd0c2237f146919ec5827630373d75ad0df",
+        process.env.ETHEREUM_SIGNER_PRIVATE_KEY,
         ethersProvider
     );
 
