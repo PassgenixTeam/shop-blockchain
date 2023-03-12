@@ -54,10 +54,9 @@ export async function initiateTrustWallet() {
     window.provider = ethersProvider;
 
     if (window.ethereum.isTrust) console.log("Trust Wallet is connected");
-    else {
-        console.log("Trust Wallet is not connected, using Metamask wallet");
-        await window.provider.send("eth_requestAccounts", []);
-    }
+    else console.log("Trust Wallet is not connected, using Metamask wallet");
+
+    await window.provider.send("eth_requestAccounts", []);
 
     const signer = ethersProvider.getSigner();
     window.signer = signer;

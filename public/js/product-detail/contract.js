@@ -24,8 +24,9 @@ export async function createContractInstances() {
     ]);
 
     const ShopContract = new window.ethers.Contract(
-        "0xF0E6C8733494a895E2848D60215C1799535f1E01",
-        shopAbi
+        "0xeC4f84682e88365067bb69D567A3De7561d97666",
+        shopAbi,
+        window.provider
     );
     window.ShopContract = ShopContract;
 
@@ -35,7 +36,8 @@ export async function createContractInstances() {
     if (window.coinAddress) {
         const USDCContract = new window.ethers.Contract(
             window.coinAddress,
-            tokenERC20Abi
+            tokenERC20Abi,
+            window.provider
         );
         window.USDCContract = USDCContract;
 
@@ -48,7 +50,8 @@ export async function getBalance(tokenAddress, address) {
     const tokenERC20Abi = await getAbi("token");
     const USDCContract = new window.ethers.Contract(
         tokenAddress,
-        tokenERC20Abi
+        tokenERC20Abi,
+        window.provider
     );
 
     const balance = await USDCContract.connect(signer).balanceOf(address);
