@@ -19,6 +19,7 @@ async function main() {
   // Deploy contracts
   console.log('============DEPLOYING CONTRACTS============');
 
+  // const Shop: Shop = Shop_factory.attach('0x3973F77b42Cb8AA79D5E2D5C4bc7851660d30287');
   const Shop: Shop = (await upgrades.deployProxy(Shop_factory, [owner.address, signer.address])) as Shop;
   await Shop.deployed();
   const materialVerifyAddress: string = await upgrades.erc1967.getImplementationAddress(Shop.address);
