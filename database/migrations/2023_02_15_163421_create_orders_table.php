@@ -19,6 +19,7 @@ class CreateOrdersTable extends Migration
             $table->string('order_status');
             $table->string("tx_message")->nullable();;
             $table->integer('amount');
+            $table->string('total_price');
             $table->timestamps();
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
