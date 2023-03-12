@@ -1,5 +1,6 @@
 import { getTrustWalletInjectedProvider } from "./trust-wallet.js";
 import { getAbi } from "./api.js";
+import config from "./config.js";
 
 export async function connectWallet() {
     try {
@@ -24,7 +25,7 @@ export async function createContractInstances() {
     ]);
 
     const ShopContract = new window.ethers.Contract(
-        "0xeC4f84682e88365067bb69D567A3De7561d97666",
+        config.shopContract,
         shopAbi,
         window.provider
     );

@@ -52,9 +52,9 @@ class OrderController extends Controller
             return redirect('admin/order');
         }
 
-        $coin = (new CoinController)->getCoinPrice($request->coin);
+        // $coin = (new CoinController)->getCoinPrice($request->coin);
 
-        $total_price = $product->price / $coin->price * $request->amount;
+        $total_price = $product->price * $request->amount;
 
         $order = new Order();
         $order->product_id = $product->id;
@@ -67,7 +67,8 @@ class OrderController extends Controller
         return [
             'id' => $order->id,
             'total_price' => $total_price,
-            'symbol' => $coin->symbol];
+            // 'symbol' => $coin->symbol
+        ];
     }
 
     /**

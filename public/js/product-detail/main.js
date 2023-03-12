@@ -2,6 +2,7 @@ import {
     ethers,
     BigNumber,
 } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.esm.min.js";
+import "./config.js";
 import "./select-coin.js";
 
 import {
